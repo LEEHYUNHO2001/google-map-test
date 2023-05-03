@@ -9,7 +9,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `http://localhost:9090/:path*`,
+        destination: `https://api.themoviedb.org/3/:path*`,
       },
     ];
   },
