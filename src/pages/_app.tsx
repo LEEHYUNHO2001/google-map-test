@@ -1,5 +1,5 @@
 import { Global, ThemeProvider } from '@emotion/react';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
 
 import { Layout } from '@/components/Layout';
@@ -13,7 +13,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ThemeProvider theme={theme}>
         <Global styles={reset} />
         <Layout>
-          <Component {...pageProps} />
+          <Hydrate state={pageProps.dehydratedState}>
+            <Component {...pageProps} />
+          </Hydrate>
         </Layout>
       </ThemeProvider>
     </QueryClientProvider>

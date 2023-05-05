@@ -1,47 +1,52 @@
 import styled from '@emotion/styled';
-import { useQuery } from '@tanstack/react-query';
-import axios, { Method } from 'axios';
-import type { NextPage } from 'next';
-import { useEffect } from 'react';
+import { dehydrate, useQuery } from '@tanstack/react-query';
+import type { GetStaticProps, NextPage } from 'next';
 
-type MovieResponseModel = {
-  dates: {
-    maximum: string;
-    minimum: string;
-  };
-  page: number;
-  results: any[];
-  total_pages: number;
-  total_results: number;
-};
+import { MoviesResponseModel } from '@/types/moviesResponseModel';
+import { fetchMovies } from '@/utils/fetch/fetchMovies';
+import { queryClient } from '@/utils/query';
 
 const HomePage: NextPage = () => {
-  const fetchMovies = async (): Promise<MovieResponseModel> => {
-    const res = await axios({
-      method: 'get' as Method,
-      url: `api/movie/now_playing?api_key=${process.env.NEXT_PUBLIC_THEMOVIEDB_APIKEY}`,
-    });
-    return res.data;
-  };
-
-  const { data } = useQuery<MovieResponseModel>({
-    queryKey: ['movie'],
+  const { data, isFetching } = useQuery<MoviesResponseModel>({
+    queryKey: ['movies'],
     queryFn: fetchMovies,
     onSuccess: () => {
       // 성공시 처리
     },
-    onError: () => {
+    onError: error => {
       // 실패시 처리
+      console.error(error);
     },
   });
 
-  useEffect(() => {
-    if (data) {
-      console.log(data);
-    }
-  }, [data]);
+  if (isFetching) {
+    return <div>Loading...</div>;
+  }
 
-  return <Container>Home</Container>;
+  return (
+    <Container>
+      <h1>Movie App</h1>
+      {data?.results.map(movie => (
+        <div key={movie.id}>
+          <h2>{movie.title}</h2>
+          <p>{movie.overview}</p>
+        </div>
+      ))}
+    </Container>
+  );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  await queryClient.prefetchQuery<MoviesResponseModel>({
+    queryKey: ['movies'],
+    queryFn: fetchMovies,
+  });
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
 };
 
 const Container = styled.section`
