@@ -29,12 +29,16 @@ const HomePage: NextPage = () => {
     setSearch(e.target.value);
   };
 
+  const filteredMovies = data?.results.filter(movie =>
+    movie.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <Container>
       <h1>Movie App</h1>
-      <input value={search} onChange={handleSearch} />
+      <SearchInput value={search} onChange={handleSearch} />
       <MovieList>
-        {data?.results.map(movie => (
+        {filteredMovies?.map(movie => (
           <MovieItem key={movie.id}>
             <h2>{movie.title}</h2>
             {/* <p>{movie.overview}</p> */}
@@ -61,6 +65,11 @@ export const getStaticProps: GetStaticProps = async () => {
 const Container = styled.section`
   width: 100%;
   color: ${props => props.theme.black0};
+`;
+const SearchInput = styled.input`
+  width: 100%;
+  height: 30px;
+  border: 1px solid #000000;
 `;
 const MovieList = styled.ul`
   display: flex;
