@@ -13,7 +13,8 @@
       "@hooks/*": ["hooks/*"],
       "@types/*": ["types/*"],
       "@tests/*": ["tests/*"],
-      "@store/*": ["store/*"]
+      "@store/*": ["store/*"],
+      "@react-google-maps/api": ["node_modules/@react-google-maps/api"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
