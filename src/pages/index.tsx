@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 import { dehydrate, useQuery } from '@tanstack/react-query';
 import type { GetStaticProps, NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
@@ -9,6 +10,13 @@ import { queryClient } from '@/utils/query';
 
 const HomePage: NextPage = () => {
   const [search, setSearch] = useState('');
+
+  const { isLoaded, loadError } = useLoadScript({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries: ['places'],
+  });
+
   const { data, isFetching } = useQuery<MoviesResponseModel>({
     queryKey: ['movies'],
     queryFn: fetchMovies,
@@ -21,9 +29,11 @@ const HomePage: NextPage = () => {
     },
   });
 
-  if (isFetching) {
+  if (isFetching || !isLoaded) {
     return <div>Loading...</div>;
   }
+
+  if (loadError) return <div>Error loading maps</div>;
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -45,6 +55,14 @@ const HomePage: NextPage = () => {
           </MovieItem>
         ))}
       </MovieList>
+
+      <GoogleMap
+        mapContainerStyle={{ height: '400px', width: '100%' }}
+        zoom={5}
+        center={{ lat: 37.5665, lng: 126.978 }}
+      >
+        <Marker position={{ lat: 37.5665, lng: 126.978 }} />
+      </GoogleMap>
     </Container>
   );
 };
